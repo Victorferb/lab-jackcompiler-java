@@ -10,9 +10,11 @@ public enum TokenType {
      NUMBER,
      STRING,
 
+     
 
      IDENT,
 
+     IDENTIFIER,
  
      // keywords
      WHILE, CLASS,CONSTRUCTOR,FUNCTION,
