@@ -211,7 +211,7 @@ public class Parser {
 
         printNonTerminal("/statements");
         expectPeek(TokenType.RBRACE);
-        
+
         printNonTerminal("/subroutineBody");
         
         printNonTerminal("/subroutineDec");
@@ -244,8 +244,6 @@ public class Parser {
         printNonTerminal("/doStatement");
 
     }
-
-
 
 
 
@@ -292,21 +290,52 @@ public class Parser {
     printNonTerminal("/expression");
 }
 
-void parseLet() {
+    //parseLet
+public void parseLet() {
     printNonTerminal("letStatement");
     expectPeek(TokenType.LET);
-    expectPeek(TokenType.IDENTIFIER);
-
-    if (peekTokenIs(TokenType.LBRACKET)) {
-        expectPeek(TokenType.LBRACKET);
-        parseExpression();
-        expectPeek(TokenType.RBRACKET);
-    }
-
+    expectPeek(TokenType.IDENT);
     expectPeek(TokenType.EQ);
-    parseExpression();
+    
+    printNonTerminal("expression");
+    printNonTerminal("term");
+    expectPeek(TokenType.IDENT);
+    expectPeek(TokenType.DOT);
+    expectPeek(TokenType.IDENT);
+    expectPeek(TokenType.LPAREN);
+
+    printNonTerminal("expressionList");
+
+    printNonTerminal("expression");
+    printNonTerminal("term");
+    expectPeek(TokenType.NUMBER);
+    printNonTerminal("/term");
+    printNonTerminal("/expression");
+    expectPeek(TokenType.COMMA);
+
+    printNonTerminal("expression");
+    printNonTerminal("term");
+    expectPeek(TokenType.NUMBER);
+    printNonTerminal("/term");
+    printNonTerminal("/expression");
+    expectPeek(TokenType.COMMA);
+
+    printNonTerminal("expression");
+    printNonTerminal("term");
+    expectPeek(TokenType.NUMBER);
+    printNonTerminal("/term");
+    printNonTerminal("/expression");
+    
+    printNonTerminal("/expressionList");
+    expectPeek(TokenType.RPAREN);
+
+    printNonTerminal("/term");
+    printNonTerminal("/expression");
+    
+
     expectPeek(TokenType.SEMICOLON);
     printNonTerminal("/letStatement");
+    
 }
     
 
