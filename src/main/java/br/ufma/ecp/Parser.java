@@ -97,6 +97,7 @@ public class Parser {
         match(TokenType.NUMBER);
     }
 
+
     //class Main{}
     public void parserClass(){
         printNonTerminal("class");
@@ -110,15 +111,32 @@ public class Parser {
     }
 
     //classVarDec
-    public void parseCassVarDec(){
+    public void parseClassVarDec(){
         printNonTerminal("classVarDec");
 
         expectPeek(TokenType.FIELD);
-        expectPeek(TokenType.INT);
+        expectPeek(TokenType.IDENT);
         expectPeek(TokenType.IDENT);
         expectPeek(TokenType.SEMICOLON);
     
         printNonTerminal("/classVarDec");
+
+    }
+
+    //SubroutineDec
+    public void parseSubroutine(){
+        printNonTerminal("Subroutine");
+
+        expectPeek(TokenType.CONSTRUCTOR);
+        expectPeek(TokenType.FUNCTION);
+        expectPeek(TokenType.METHOD);
+        expectPeek(TokenType.VOID);
+        expectPeek(TokenType.LBRACE);
+        expectPeek(TokenType.RBRACE);
+        expectPeek(TokenType.SEMICOLON);
+
+        printNonTerminal("/Subroutine");
+
 
     }
 
@@ -127,7 +145,7 @@ public class Parser {
 
 
 
-    
+
     void parseTerm() {
         printNonTerminal("term");
         switch (peekToken.type) {
