@@ -247,6 +247,47 @@ public class Parser {
 
 
 
+    //parseIf
+public void parseIf(){
+    printNonTerminal("ifStatement");
+    expectPeek(TokenType.IF);
+    expectPeek(TokenType.LPAREN);
+
+    printNonTerminal("expression");
+    printNonTerminal("term");
+    expectPeek(TokenType.IDENT);
+    printNonTerminal("/term");
+    expectPeek(TokenType.EQ);
+    printNonTerminal("term");
+    expectPeek(TokenType.NUMBER);
+    printNonTerminal("/term");
+    printNonTerminal("/expression");
+
+    expectPeek(TokenType.RPAREN);
+    expectPeek(TokenType.LBRACE);
+    
+    printNonTerminal("statements");
+    printNonTerminal("doStatement");
+    expectPeek(TokenType.DO);
+    expectPeek(TokenType.IDENT);
+    expectPeek(TokenType.DOT);
+    expectPeek(TokenType.IDENT);
+    expectPeek(TokenType.LPAREN);
+    printNonTerminal("expressionList");
+    printNonTerminal("/expressionList");
+    expectPeek(TokenType.RPAREN);
+    expectPeek(TokenType.SEMICOLON);
+    printNonTerminal("/doStatement");
+    printNonTerminal("/statements");
+    
+    expectPeek(TokenType.RBRACE);
+
+    printNonTerminal("/ifStatement");
+
+}
+
+
+
     void parseTerm() {
         printNonTerminal("term");
         switch (peekToken.type) {
