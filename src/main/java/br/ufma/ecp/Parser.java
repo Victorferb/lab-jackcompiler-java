@@ -136,11 +136,36 @@ public class Parser {
         expectPeek(TokenType.SEMICOLON);
 
         printNonTerminal("/Subroutine");
-
-
     }
 
+//ParseDo
 
+    public void parseDo(){
+        printNonTerminal("doStatement");
+
+        expectPeek(TokenType.DO);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.DOT);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.LPAREN);
+
+        printNonTerminal("expressionList");
+        printNonTerminal("expression");
+        printNonTerminal("term");
+
+        expectPeek(TokenType.NUMBER);
+
+        printNonTerminal("/term");
+        printNonTerminal("/expression");
+        printNonTerminal("/expressionList");
+        
+        expectPeek(TokenType.RPAREN);
+        expectPeek(TokenType.SEMICOLON);
+        
+
+        printNonTerminal("/doStatement");
+
+    }
 
 
 
