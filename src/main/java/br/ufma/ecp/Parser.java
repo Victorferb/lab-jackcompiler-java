@@ -1,5 +1,7 @@
 package br.ufma.ecp;
 
+import javax.lang.model.type.TypeKind;
+
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 
@@ -124,22 +126,98 @@ public class Parser {
     }
 
     //SubroutineDec
-    public void parseSubroutine(){
-        printNonTerminal("Subroutine");
+    public void parseSubroutineDec(){
+        printNonTerminal("subroutineDec");
 
         expectPeek(TokenType.CONSTRUCTOR);
-        expectPeek(TokenType.FUNCTION);
-        expectPeek(TokenType.METHOD);
-        expectPeek(TokenType.VOID);
-        expectPeek(TokenType.LBRACE);
-        expectPeek(TokenType.RBRACE);
-        expectPeek(TokenType.SEMICOLON);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.LPAREN);
+        
+                
+               
+        printNonTerminal("parameterList");
+        expectPeek(TokenType.INT);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.COMMA);
+        expectPeek(TokenType.INT);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.COMMA);
+        expectPeek(TokenType.INT);
+        expectPeek(TokenType.IDENT);
+        printNonTerminal("/parameterList");
 
-        printNonTerminal("/Subroutine");
+        expectPeek(TokenType.RPAREN);
+
+        printNonTerminal("subroutineBody");
+        expectPeek(TokenType.LBRACE);
+        printNonTerminal("statements");
+
+        printNonTerminal("letStatement");
+        expectPeek(TokenType.LET);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.EQ);
+        printNonTerminal("expression");
+        printNonTerminal("term");
+        expectPeek(TokenType.IDENT);
+        printNonTerminal("/term");
+        printNonTerminal("/expression");
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/letStatement");
+
+        printNonTerminal("letStatement");
+        expectPeek(TokenType.LET);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.EQ);
+        printNonTerminal("expression");
+        printNonTerminal("term");
+        expectPeek(TokenType.IDENT);
+        printNonTerminal("/term");
+        printNonTerminal("/expression");
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/letStatement");
+
+        printNonTerminal("letStatement");
+        expectPeek(TokenType.LET);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.EQ);
+        printNonTerminal("expression");
+        printNonTerminal("term");
+        expectPeek(TokenType.IDENT);
+        printNonTerminal("/term");
+        printNonTerminal("/expression");
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/letStatement");
+
+        printNonTerminal("doStatement");
+        expectPeek(TokenType.DO);
+        expectPeek(TokenType.IDENT);
+        expectPeek(TokenType.LPAREN);
+        printNonTerminal("expressionList");
+        printNonTerminal("/expressionList");
+        expectPeek(TokenType.RPAREN);
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/doStatement");
+
+        printNonTerminal("returnStatement");
+        expectPeek(TokenType.RETURN);
+        printNonTerminal("expression");
+        printNonTerminal("term");
+        expectPeek(TokenType.THIS);
+        printNonTerminal("/term");
+        printNonTerminal("/expression");
+        expectPeek(TokenType.SEMICOLON);
+        printNonTerminal("/returnStatement");
+
+        printNonTerminal("/statements");
+        expectPeek(TokenType.RBRACE);
+        
+        printNonTerminal("/subroutineBody");
+        
+        printNonTerminal("/subroutineDec");
     }
 
 //ParseDo
-
     public void parseDo(){
         printNonTerminal("doStatement");
 
