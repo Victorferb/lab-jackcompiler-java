@@ -27,7 +27,7 @@ public class Parser {
     }
 
     public void parse () {
-        expr();
+        
     }
     
 // funções auxiliares
