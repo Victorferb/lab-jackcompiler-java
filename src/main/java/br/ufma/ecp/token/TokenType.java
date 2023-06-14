@@ -1,63 +1,83 @@
 package br.ufma.ecp.token;
 
-import java.util.List;
-//import java.util.Map;
+import java.util.Arrays;
 
 public enum TokenType {
-    PLUS,MINUS, SLASH,
-
-     // Literals.
-     NUMBER,
-     STRING,
-
-     
-
-     IDENT,
-
-     IDENTIFIER,
  
-     // keywords
-     WHILE, CLASS,CONSTRUCTOR,FUNCTION,
-     METHOD,FIELD,STATIC,VAR,INT,
-     CHAR,BOOLEAN,VOID,TRUE,FALSE,
-     NULL,THIS,LET,DO,IF,ELSE, RETURN,
-     EOF,
+    
+
+    STRING(),
+
+    INTEGER(),
+
+    IDENTIFIER(),
+
+    // keywords
+    WHILE("while"), CLASS("class"),CONSTRUCTOR("constructor"),FUNCTION("function"),
+    METHOD("method"),FIELD("field"),STATIC("static"),VAR("var"),INT("int"),
+    CHAR("char"),BOOLEAN("boolean"),VOID("void"),TRUE("true"),FALSE("false"),
+    NULL("null"),THIS("this"),LET("let"),DO("do"),IF("if"),
+    ELSE("else"), RETURN("return"),
 
 
-          // symbols
-    LPAREN,RPAREN,
-    LBRACE, RBRACE,
-    LBRACKET,RBRACKET,
+    // Symbols
+    PLUS("+"),
+    EQ("="),
+    MINUS("-"),
+    ASTERISK("*"),
+    SLASH("/"),
+    AND("&"),
+    OR("|"),
+    NOT("~"),
+    
+    LT("<"),
+    GT(">"),
 
-    COMMA, SEMICOLON, DOT,
-  
-    ASTERISK,
+    DOT("."),
+    COMMA(","),
+    SEMICOLON(";"),
+    LPAREN("("),
+    RPAREN(")"),
+    LBRACE("{"),
+    RBRACE("}"),
+    LBRACKET("["),
+    RBRACKET("]"),
 
-    AND, OR, NOT,
 
-    LT, GT, EQ, 
-     ILLEGAL;
+    EOF();
 
 
+    private TokenType() {
+    }
 
-     
+    private TokenType(String value) {
+        this.value = value;
+    }
 
-     static public boolean isSymbol (char c) {
+    public String value;
+
+
+    public static TokenType fromValue(String value) {
+        return Arrays.stream(TokenType.values())
+                .filter(symbolType -> symbolType.value != null && symbolType.value.equals(value))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    static public boolean isSymbol (char c) {
         String symbols = "{}()[].,;+-*/&|<>=~";
         return symbols.indexOf(c) > -1;
     }
 
-
-    static public boolean isKeyword (TokenType type) {
-        List<TokenType> keywords  = 
-            List.of(
-                METHOD,
-                WHILE,
-                IF,
-                CLASS, FIELD, INT, VOID, BOOLEAN,
-                CONSTRUCTOR
-            );
-            return keywords.contains(type);
+    static public boolean isOperator(TokenType type) {
+        return "+-*/<>=~&|".contains(type.value);
     }
 
+    static public TokenType keyword (String value) {
+      return fromValue(value);
+    }
+
+
+    
 }
