@@ -51,7 +51,7 @@ public class Parser {
         printNonTerminal("class");
         expectPeek(CLASS);
         expectPeek(IDENTIFIER);
-        className = currentToken.value();
+        className = currentToken.lexeme;
         expectPeek(LBRACE);
 
         while (peekTokenIs(STATIC) || peekTokenIs(FIELD)) {
@@ -67,31 +67,33 @@ public class Parser {
         printNonTerminal("/class");
     }
 
-
+    // subroutineCall -> subroutineName '(' expressionList ')' | (className|varName)
+    // '.' subroutineName '(' expressionList ')
     void parseSubroutineCall() {
 
         var nArgs = 0;
 
-        var ident = currentToken.value();
-        var symbol = symbolTable.resolve(ident);
+        var ident = currentToken.lexeme;
+        var symbol = symbolTable.resolve(ident); // classe ou objeto
         var functionName = ident + ".";
 
-        if (peekTokenIs(LPAREN)) {
+        if (peekTokenIs(LPAREN)) { // método da propria classe
             expectPeek(LPAREN);
             vmWriter.writePush(Segment.POINTER, 0);
             nArgs = parseExpressionList() + 1;
             expectPeek(RPAREN);
             functionName = className + "." + ident;
         } else {
+            // pode ser um metodo de um outro objeto ou uma função
             expectPeek(DOT);
-            expectPeek(IDENTIFIER); 
+            expectPeek(IDENTIFIER); // nome da função
 
-            if (symbol != null) { 
-                functionName = symbol.type() + "." + currentToken.value();
+            if (symbol != null) { // é um metodo
+                functionName = symbol.type() + "." + currentToken.lexeme;
                 vmWriter.writePush(kind2Segment(symbol.kind()), symbol.index());
-                nArgs = 1; 
+                nArgs = 1; // do proprio objeto
             } else {
-                functionName += currentToken.value(); 
+                functionName += currentToken.lexeme; // é uma função
             }
 
             expectPeek(LPAREN);
@@ -114,24 +116,27 @@ public class Parser {
         printNonTerminal("/doStatement");
     }
 
+    // 'var' type varName ( ',' varName)* ';'
+
     void parseVarDec() {
         printNonTerminal("varDec");
         expectPeek(VAR);
 
         SymbolTable.Kind kind = Kind.VAR;
 
+        // 'int' | 'char' | 'boolean' | className
         expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
-        String type = currentToken.value();
+        String type = currentToken.lexeme;
 
         expectPeek(IDENTIFIER);
-        String name = currentToken.value();
+        String name = currentToken.lexeme;
         symbolTable.define(name, type, kind);
 
         while (peekTokenIs(COMMA)) {
             expectPeek(COMMA);
             expectPeek(IDENTIFIER);
 
-            name = currentToken.value();
+            name = currentToken.lexeme;
             symbolTable.define(name, type, kind);
 
         }
@@ -149,18 +154,19 @@ public class Parser {
         if (currentTokenIs(FIELD))
             kind = Kind.FIELD;
 
+        // 'int' | 'char' | 'boolean' | className
         expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
-        String type = currentToken.value();
+        String type = currentToken.lexeme;
 
         expectPeek(IDENTIFIER);
-        String name = currentToken.value();
+        String name = currentToken.lexeme;
 
         symbolTable.define(name, type, kind);
         while (peekTokenIs(COMMA)) {
             expectPeek(COMMA);
             expectPeek(IDENTIFIER);
 
-            name = currentToken.value();
+            name = currentToken.lexeme;
             symbolTable.define(name, type, kind);
         }
 
@@ -183,10 +189,11 @@ public class Parser {
             symbolTable.define("this", className, Kind.ARG);
         }
 
+        // 'int' | 'char' | 'boolean' | className
         expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
         expectPeek(IDENTIFIER);
 
-        var functionName = className + "." + currentToken.value();
+        var functionName = className + "." + currentToken.lexeme;
 
         expectPeek(LPAREN);
         parseParameterList();
@@ -204,19 +211,19 @@ public class Parser {
         if (!peekTokenIs(RPAREN)) // verifica se tem pelo menos uma expressao
         {
             expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
-            String type = currentToken.value();
+            String type = currentToken.lexeme;
 
             expectPeek(IDENTIFIER);
-            String name = currentToken.value();
+            String name = currentToken.lexeme;
             symbolTable.define(name, type, kind);
 
             while (peekTokenIs(COMMA)) {
                 expectPeek(COMMA);
                 expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
-                type = currentToken.value();
+                type = currentToken.lexeme;
 
                 expectPeek(IDENTIFIER);
-                name = currentToken.value();
+                name = currentToken.lexeme;
 
                 symbolTable.define(name, type, kind);
             }
@@ -253,14 +260,17 @@ public class Parser {
         printNonTerminal("/subroutineBody");
     }
 
+    // letStatement -> 'let' identifier( '[' expression ']' )? '=' expression ';'
     void parseLet() {
+
         var isArray = false;
 
         printNonTerminal("letStatement");
         expectPeek(LET);
+        System.out.println(peekToken);
         expectPeek(IDENTIFIER);
 
-        var symbol = symbolTable.resolve(currentToken.value());
+        var symbol = symbolTable.resolve(currentToken.lexeme);
 
         if (peekTokenIs(LBRACKET)) { // array
             expectPeek(LBRACKET);
@@ -281,10 +291,10 @@ public class Parser {
 
         if (isArray) {
 
-            vmWriter.writePop(Segment.TEMP, 0);    
-            vmWriter.writePop(Segment.POINTER, 1); 
-            vmWriter.writePush(Segment.TEMP, 0);  
-            vmWriter.writePop(Segment.THAT, 0);    
+            vmWriter.writePop(Segment.TEMP, 0);    // push result back onto stack
+            vmWriter.writePop(Segment.POINTER, 1); // pop address pointer into pointer 1
+            vmWriter.writePush(Segment.TEMP, 0);   // push result back onto stack
+            vmWriter.writePop(Segment.THAT, 0);    // Store right hand side evaluation in THAT 0.
     
 
         } else {
@@ -295,7 +305,7 @@ public class Parser {
         printNonTerminal("/letStatement");
     }
 
-
+    // 'while' '(' expression ')' '{' statements '}'
     void parseWhile() {
         printNonTerminal("whileStatement");
 
@@ -403,7 +413,7 @@ public class Parser {
         }
     }
 
-
+    // ReturnStatement -> 'return' expression? ';'
     void parseReturn() {
         printNonTerminal("returnStatement");
         expectPeek(RETURN);
@@ -423,13 +433,13 @@ public class Parser {
 
         var nArgs = 0;
 
-        if (!peekTokenIs(RPAREN)) 
+        if (!peekTokenIs(RPAREN)) // verifica se tem pelo menos uma expressao
         {
             parseExpression();
             nArgs = 1;
         }
 
-    
+        // procurando as demais
         while (peekTokenIs(COMMA)) {
             expectPeek(COMMA);
             parseExpression();
@@ -440,10 +450,11 @@ public class Parser {
         return nArgs;
     }
 
+    // expression -> term (op term)*
     void parseExpression() {
         printNonTerminal("expression");
         parseTerm();
-        while (isOperator(peekToken.type)) {
+        while (isOperator(peekToken.lexeme)) {
             var op = peekToken.type;
             expectPeek(peekToken.type);
             parseTerm();
@@ -463,17 +474,17 @@ public class Parser {
         }
     }
 
-
+    // term -> number | identifier | stringConstant | keywordConstant
     void parseTerm() {
         printNonTerminal("term");
         switch (peekToken.type) {
-            case INTEGER:
-                expectPeek(INTEGER);
-                vmWriter.writePush(Segment.CONST, Integer.parseInt(currentToken.value()));
+            case NUMBER:
+                expectPeek(NUMBER);
+                vmWriter.writePush(Segment.CONST, Integer.parseInt(currentToken.lexeme));
                 break;
             case STRING:
                 expectPeek(STRING);
-                var strValue = currentToken.value();
+                var strValue = currentToken.lexeme;
                 vmWriter.writePush(Segment.CONST, strValue.length());
                 vmWriter.writeCall("String.new", 1);
                 for (int i = 0; i < strValue.length(); i++) {
@@ -495,12 +506,12 @@ public class Parser {
                 break;
             case IDENTIFIER:
                 expectPeek(IDENTIFIER);
-                Symbol sym = symbolTable.resolve(currentToken.value());
+                Symbol sym = symbolTable.resolve(currentToken.lexeme);
 
                 if (peekTokenIs(LPAREN) || peekTokenIs(DOT)) {
                     parseSubroutineCall();
-                } else { 
-                    if (peekTokenIs(LBRACKET)) { 
+                } else { // variavel comum ou array
+                    if (peekTokenIs(LBRACKET)) { // array
                         expectPeek(LBRACKET);
                         parseExpression();
                         vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
@@ -508,11 +519,11 @@ public class Parser {
         
 
                         expectPeek(RBRACKET);
-                        vmWriter.writePop(Segment.POINTER, 1); 
-                        vmWriter.writePush(Segment.THAT, 0);   
+                        vmWriter.writePop(Segment.POINTER, 1); // pop address pointer into pointer 1
+                        vmWriter.writePush(Segment.THAT, 0);   // push the value of the address pointer back onto stack
         
                     } else {
-                        vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
+                       vmWriter.writePush(kind2Segment(sym.kind()), sym.index());
                     }
                 }
                 break;
@@ -538,7 +549,7 @@ public class Parser {
         printNonTerminal("/term");
     }
 
- 
+    // funções auxiliares
     public String XMLOutput() {
         return xmlOutput.toString();
     }
@@ -567,6 +578,7 @@ public class Parser {
             }
         }
 
+        // throw new Error("Syntax error");
         throw error(peekToken, "Expected a statement");
 
     }
@@ -576,8 +588,9 @@ public class Parser {
             nextToken();
             xmlOutput.append(String.format("%s\r\n", currentToken.toString()));
         } else {
-
-            throw error(peekToken, "Expected " + type.value);
+            // throw new Error("Syntax error - expected " + type + " found " +
+            // peekToken.type);
+            throw error(peekToken, "Expected " + type);
         }
     }
 
@@ -591,7 +604,7 @@ public class Parser {
         if (token.type == TokenType.EOF) {
             report(token.line, " at end", message);
         } else {
-            report(token.line, " at '" + token.value() + "'", message);
+            report(token.line, " at '" + token.lexeme + "'", message);
         }
         return new ParseError();
     }
